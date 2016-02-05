@@ -6,12 +6,7 @@ import datetime
 import hashlib
 import requests
 from flask import Flask, render_template, jsonify, redirect, request, url_for, session, flash, abort
-from kit import LineChart, Cgminer, CgminerError
 
-
-line_chart = LineChart(7)
-
-chart_asked = time.time() - 60 * 5 # as it was asked 5 minutes ago
 
 app = Flask(__name__)
 app.secret_key = 'gf6dfg87sfg7sf5gs4dfg5s7fgsd980n'
