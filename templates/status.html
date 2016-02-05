@@ -1,0 +1,175 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block content %}
+<div ng-controller="StatusController">
+
+<div class="ibox float-e-margins" ng-show="summary">
+    <div class="ibox-content">
+        <div class="row">
+            <div class="hidden-xs col-lg-8">
+                <div>
+                    <h5>Hashrate</h5>
+                    <small>Hashrate of all ASICs</small>
+                </div>
+                <div>
+                    <canvas id="lineChart" height="232" width="997" style="width: 997px; height: 232px;"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="widget style1 navy-bg" ng-class="{'navy-bg': summary.ghs / devices.length >= 400, 'yellow-bg': summary.ghs / devices.length < 400 && summary.ghs / devices.length >= 200, 'red-bg': summary.ghs / devices.length < 200}">
+                    <div class="row">
+                        <div class="col-xs-4">
+                            <i class="fa fa-rocket fa-5x"></i>
+                        </div>
+                        <div class="col-xs-8 text-right">
+                            <span>Total Hashrate</span>
+                            <h2>{[ summary.ghs.toFixed(0) ]} GHs</h2>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        <span>Accepted</span>
+                        <small class="pull-right">{[ summary.accepted ]}</small>
+                    </div>
+                    <div class="progress progress-small">
+                        <div style="width: {[ summary.accepted_percent ]}%;" class="progress-bar"></div>
+                    </div>
+                    <div>
+                        <span>Rejected</span>
+                        <small class="pull-right">{[ summary.rejected ]}</small>
+                    </div>
+                    <div class="progress progress-small">
+                        <div style="width: {[ summary.rejected_percent ]}%;" class="progress-bar progress-bar-danger"></div>
+                    </div>
+                    <div class="widget-text-box" ng-show="summary.pool">
+                       <span>
+                            <i class="fa fa-circle green"></i>
+                            Current pool: <strong>{[ summary.pool.url ]}</strong>
+                        </span>
+                        <small class="pull-right">{[ summary.pool.user ]}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="jumbotron text-center" ng-show="!devices.length">
+    <p>No devices were detected</p>
+    <p>
+        <small>
+            Trying to detect devices. Please wait.
+        </small>
+    </p>
+    <p><i class="fa fa-spinner fa-spin"></i></p>
+</div>
+
+<div role="tabpanel" ng-show="devices.length">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" ng-repeat="device in devices" ng-class="{active: selectedTab === $index}">
+            <a href="#device{[ $index ]}" aria-controls="device{[ $index ]}" role="tab" data-toggle="tab" ng-click="selectTab($index)">{[ device.name ]} {[ device.id ]}</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane" id="device{[ $index ]}" ng-repeat="device in devices" ng-class="{active: selectedTab === $index}">
+            <div class="row">
+                <div class="col-md-6 col-lg-3">
+                    <div class="widget style1" ng-class="{'navy-bg': device.ghs >= 400, 'yellow-bg': device.ghs < 400 && device.ghs >= 200, 'red-bg': device.ghs < 200}">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <i class="fa fa-rocket fa-5x"></i>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <span>Hashrate</span>
+                                <h2>{[ device.ghs.toFixed(0) ]} GHs</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="widget style1" ng-class="{'navy-bg': device.temperature <= 90, 'yellow-bg': device.temperature > 90 && device.temperature <= 95, 'red-bg': device.temperature > 95}">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <i class="fa fa-tachometer fa-5x"></i>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <span>Temperature</span>
+                                <h2>{[ device.temperature ]}'C</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="widget style1 navy-bg">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <i class="fa fa-thumbs-up fa-5x"></i>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <span>Accepted</span>
+                                <h2>{[ device.accepted ]}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="widget style1 navy-bg">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <i class="fa fa-recycle fa-5x"></i>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <span>Rejected</span>
+                                <h2>{[ device.rejected ]}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="widget style1 ibox-content">
+                        <div class="row vertical-align">
+                            <div class="col-xs-3">
+                                <i class="fa fa-clock-o fa-3x has-success"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <h3>{[ device.clockrate ]}</h3>
+                                <span>Clockrate</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="widget style1 ibox-content">
+                        <div class="row vertical-align">
+                            <div class="col-xs-3">
+                                <i class="fa fa-bolt fa-3x has-success"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <h3>{[ device.voltage ]} V</h3>
+                                <span>Voltage</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="widget style1 ibox-content">
+                        <div class="row vertical-align">
+                            <div class="col-xs-3">
+                                <i class="fa fa-circle fa-3x has-success"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <h3>{[ device.fan ]} %</h3>
+                                <span>Fan Speed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block content %}
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>Alerts</h5>
+    </div>
+    <div class="ibox-content">
+        <form role="form" class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label">Email for notifications</label>
+                <div class="col-md-10">
+                    <input type="text" class="form-control" value="2tunnels@gmail.com">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"> Alert me when HCM offline
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"> Alert me when HCM hashrate less than
+                        </label>
+                        <input type="number" min="1" max="1000" value="400" class="text-center"> GHS
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"> Alert me when HCM temperature more than
+                        </label>
+                        <input type="number" min="85" max="120" value="100" class="text-center"> C
+                    </div>
+                </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    <button type="button" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

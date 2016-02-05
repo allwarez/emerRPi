@@ -1,0 +1,72 @@
+{
+  "DEVS": [
+    {
+      "ASC": 0,
+      "Accepted": 17212,
+      "Device Elapsed": 154650,
+      "Device Hardware%": 1.1758,
+      "Device Rejected%": 0.3638,
+      "Diff1 Work": 17732256,
+      "Difficulty Accepted": 17625088.0,
+      "Difficulty Rejected": 64512.0,
+      "Enabled": "Y",
+      "Hardware Errors": 210977,
+      "ID": 0,
+      "Last Share Difficulty": 1024.0,
+      "Last Share Pool": 0,
+      "Last Share Time": 1430996364,
+      "Last Valid Work": 1430996376,
+      "MHS 15m": 495090.89,
+      "MHS 1m": 518558.85,
+      "MHS 5m": 495585.67,
+      "MHS 5s": 574294.06,
+      "MHS av": 492459.96,
+      "Name": "HFB",
+      "No Device": false,
+      "Rejected": 63,
+      "Status": "Alive",
+      "Temperature": 85.03,
+      "Total MH": 76159018076.0,
+      "Utility": 6.68
+    },
+    {
+      "ASC": 0,
+      "Accepted": 17212,
+      "Device Elapsed": 154650,
+      "Device Hardware%": 1.1758,
+      "Device Rejected%": 0.3638,
+      "Diff1 Work": 17732256,
+      "Difficulty Accepted": 17625088.0,
+      "Difficulty Rejected": 64512.0,
+      "Enabled": "Y",
+      "Hardware Errors": 210977,
+      "ID": 0,
+      "Last Share Difficulty": 1024.0,
+      "Last Share Pool": 0,
+      "Last Share Time": 1430996364,
+      "Last Valid Work": 1430996376,
+      "MHS 15m": 495090.89,
+      "MHS 1m": 518558.85,
+      "MHS 5m": 495585.67,
+      "MHS 5s": 374294.06,
+      "MHS av": 492459.96,
+      "Name": "HFBX",
+      "No Device": false,
+      "Rejected": 63,
+      "Status": "Alive",
+      "Temperature": 85.03,
+      "Total MH": 76159018076.0,
+      "Utility": 6.68
+    }
+  ],
+  "STATUS": [
+    {
+      "Code": 9,
+      "Description": "cgminer 4.7.0",
+      "Msg": "1 ASC(s)",
+      "STATUS": "S",
+      "When": 1430996376
+    }
+  ],
+  "id": 1
+}

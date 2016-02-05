@@ -1,0 +1,37 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block content %}
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>Password</h5>
+    </div>
+    <div class="ibox-content">
+        <form role="form" class="form-horizontal" action="{{ url_for('panel') }}" method="post" ng-non-bindable>
+            <div class="form-group">
+                <label class="col-md-2 control-label">Current password</label>
+                <div class="col-md-10">
+                    <input type="password" name="current" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">New password</label>
+                <div class="col-md-10">
+                    <input type="password" name="new" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">Repeat new password</label>
+                <div class="col-md-10">
+                    <input type="password" name="new_repeat" class="form-control" required>
+                </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

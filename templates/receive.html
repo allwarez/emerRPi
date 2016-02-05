@@ -1,0 +1,32 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block content %}
+
+
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>New address</h5>
+    </div>
+    <div class="ibox-content">
+        <form action="{{ url_for('wallet_create') }}" method="post">
+            <button type="submit" class="btn btn-primary">Get new address</button>
+        </form>
+    </div>
+</div>
+
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>Receive addresses</h5>
+    </div>
+    <div class="ibox-content">
+        <table class="table table-striped">
+		{% for inforec in inforeceive %}
+            <tr>
+                <th>Address</th>
+                <td>{{ inforec }}</td>
+            </tr>
+		{% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

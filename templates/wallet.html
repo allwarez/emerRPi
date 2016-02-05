@@ -1,0 +1,74 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block content %}
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>Wallet</h5>
+    </div>
+    <div class="ibox-content">
+        Balance: {{ balance }} EMC
+    </div>
+</div>
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>Transfer money</h5>
+    </div>
+    <div class="ibox-content">
+        <form role="form" class="form-horizontal" action="{{ url_for('wallet') }}" method="post" ng-non-bindable>
+            <div class="form-group">
+                <label class="col-md-2 control-label">Address</label>
+                <div class="col-md-10">
+                    <input type="text" name="address" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">Amount</label>
+                <div class="col-md-10">
+                    <input type="text" name="amount" class="form-control" required>
+                </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    <button type="submit" class="btn btn-primary">Transfer</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>Transations</h5>
+    </div>
+    <div class="ibox-content">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Address</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Confirmations</th>
+					<th>Time</th>
+                    <th>TX</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction['address'] }}</td>
+                        <td>{{ transaction['category'] }}</td>
+                        <td>{{ transaction['amount'] }}</td>
+                        <td>{{ transaction['confirmations'] }}</td>
+						<td>{{ transaction['sexy_time'] }}</td>
+                        <td>
+                            <a href="https://emercoin.mintr.org/tx/{{ transaction['txid'] }}" target="_blank">{{ transaction['txid'] }}</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% endblock %}

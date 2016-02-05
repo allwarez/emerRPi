@@ -1,0 +1,189 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block content %}
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>Pools</h5>
+    </div>
+    <div class="ibox-content">
+        <form id="pools" action="{{ url_for('update_pools') }}" method="post" role="form" class="form-horizontal" ng-non-bindable>
+            <div class="template" style="display: none;">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">URL</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="url" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Username</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="user" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Password</label>
+                    <div class="col-sm-10">
+                        <input type="password" name="pass" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Priority</label>
+                    <div class="col-sm-10">
+                        <input type="number" name="priority" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-10 col-sm-offset-2">
+                        <button type="button" class="btn btn-danger remove">Remove pool</button>
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+            </div>
+            {% for pool in pools %}
+            <div class="pool">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">URL</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="url" class="form-control" value="{{ pool.url }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Username</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="user" class="form-control" value="{{ pool.user }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Password</label>
+                    <div class="col-sm-10">
+                        <input type="password" name="pass" class="form-control" value="{{ pool.pass }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Priority</label>
+                    <div class="col-sm-10">
+                        <input type="number" name="priority" class="form-control" value="{{ loop.index }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-10 col-sm-offset-2">
+                        <button type="remove" class="btn btn-danger remove">Remove pool</button>
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+            </div>
+            {% endfor %}
+            <div class="append"></div>
+            <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2">
+                    <button type="button" class="btn btn-white add">Add new pool</button>
+                </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2">
+                    <button type="submit" class="btn btn-primary" data-loading-text="Saving...">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>Miner</h5>
+    </div>
+    <div class="ibox-content">
+        <form id="settings" action="{{ url_for('update_settings') }}" method="post" role="form" class="form-horizontal" ng-non-bindable>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Clockrate</label>
+                <div class="col-sm-10">
+                    <select name="clockrate" class="form-control">
+                        {% for step in range(500, 950, 50) %}
+                            <option {% if settings.clockrate == step %}selected{% endif %} value="{{ step }}">{{ step }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Fan Speed %</label>
+                <div class="col-sm-10">
+                    <select name="fan_speed" class="form-control">
+                        {% for fan_speed in ['30', '80', '100', 'auto'] %}
+                            <option {% if settings.fan_speed == fan_speed %}selected{% endif %} value="{{ fan_speed }}">{{ fan_speed }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Overheat C</label>
+                <div class="col-sm-10">
+                    <select name="overheat" class="form-control">
+                        {% for overheat in ['80', '95', '100'] %}
+                            <option {% if settings.overheat == overheat %}selected{% endif %} value="{{ overheat }}">{{ overheat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2">
+                    <button type="submit" class="btn btn-primary"data-loading-text="Saving...">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#pools').submit(function(event) {
+            event.preventDefault();
+            var form = $(this);
+            var submitButton = form.find('button[type="submit"]');
+            submitButton.button('loading');
+
+            var pools = form.find('.pool').map(function() {
+                var pool = $(this);
+
+                return {
+                    'url': pool.find('input[name="url"]').val(),
+                    'user': pool.find('input[name="user"]').val(),
+                    'pass': pool.find('input[name="pass"]').val(),
+                    'priority': pool.find('input[name="priority"]').val()
+                };
+            });
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: JSON.stringify({pools: pools.toArray()}),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function(data) {
+                    location = '/miner?time=' + new Date().valueOf();
+                },
+                error: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+
+        $('#pools .add').click(function(event) {
+            event.preventDefault();
+            var template = $('#pools .template').html();
+            $('#pools .append').append('<div class="pool">' + template + '</div>');
+        });
+
+        $('#pools').on('click', '.remove', function(event) {
+            event.preventDefault();
+            $(event.target).parents('.pool').remove();
+        });
+
+        $('#settings button[type="submit"]').click(function() {
+            $(this).button('loading');
+        });
+    });
+</script>
+{% endblock %}

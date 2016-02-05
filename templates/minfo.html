@@ -1,0 +1,59 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block content %}
+
+
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>Wallet & Mining info</h5>
+    </div>
+    <div class="ibox-content">
+        <table class="table table-striped">
+            <tr>
+                <th>Version</th>
+                <td>{{ info['version'] }}</td>
+            </tr>
+            <tr>
+                <th>Protocol Version</th>
+                <td>{{ info['protocolversion'] }}</td>
+            </tr>
+            <th>Connections</th>
+                <td>{{ info['connections'] }}</td>
+            </tr>
+            <tr>
+                <th>IP</th>
+                <td>{{ info['ip'] }}</td>
+            </tr>
+            <tr>
+                <th>Blocks</th>
+                <td>{{ info['blocks'] }}</td>
+            </tr>
+            <tr>
+                <th>Newmint</th>
+                <td>{{ info['newmint'] }}</td>
+            </tr>
+            <tr>
+                <th>Current Stake</th>
+                <td>{{ info['stake'] }}</td>
+            </tr>
+            <tr>
+                <th>Money supply</th>
+                <td>{{ info['moneysupply'] }}</td>
+            </tr>
+            <tr>
+                <th>Pay tx fee</th>
+                <td>{{ info['paytxfee'] }}</td>
+            </tr>
+			<tr>
+                <th>PoW Difficulty</th>
+                <td>{{ infodif['proof-of-work'] }}</td>
+            </tr>
+			<tr>
+                <th>PoS Difficulty</th>
+                <td>{{ infodif['proof-of-stake'] }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
