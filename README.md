@@ -1,0 +1,2 @@
+# miningkit
+EmerCoin Web-interface
