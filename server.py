@@ -34,6 +34,7 @@ def login():
 
 @app.route('/wallet', methods=['GET', 'POST'])
 def wallet():
+    access_check()
     with open('config/rpc', 'r') as f:
         rpc_config = json.loads(f.read())
 
@@ -84,6 +85,7 @@ def wallet():
 
 @app.route('/minfo', methods=['GET', 'POST'])
 def minfo():
+    access_check()
     with open('config/rpc', 'r') as f:
         rpc_config = json.loads(f.read())
 
@@ -112,6 +114,7 @@ def minfo():
 
 @app.route('/wallet_create', methods=['POST'])
 def wallet_create():
+    access_check()
     with open('config/rpc', 'r') as f:
         rpc_config = json.loads(f.read())
 
@@ -129,6 +132,7 @@ def wallet_create():
 
 @app.route('/receive', methods=['GET', 'POST'])
 def receive():
+    access_check()
     with open('config/rpc', 'r') as f:
         rpc_config = json.loads(f.read())
 
@@ -147,6 +151,7 @@ def receive():
 
 @app.route('/sign', methods=['GET', 'POST'])
 def sign():
+    access_check()
     with open('config/rpc', 'r') as f:
         rpc_config = json.loads(f.read())
 
@@ -174,6 +179,7 @@ def sign():
 
 @app.route('/nvs')
 def nvs():
+    access_check()
     with open('config/rpc', 'r') as f:
         rpc_config = json.loads(f.read())
 
@@ -191,6 +197,7 @@ def nvs():
 
 @app.route('/nvs_new', methods=['POST'])
 def nvs_new():
+    access_check()
     with open('config/rpc', 'r') as f:
         rpc_config = json.loads(f.read())
 
@@ -216,6 +223,7 @@ def nvs_new():
 
 @app.route('/nvs_update', methods=['POST'])
 def nvs_update():
+    access_check()
     with open('config/rpc', 'r') as f:
         rpc_config = json.loads(f.read())
 
@@ -244,6 +252,7 @@ def nvs_update():
 
 @app.route('/nvs_delete', methods=['POST'])
 def nvs_delete():
+    access_check()
     with open('config/rpc', 'r') as f:
         rpc_config = json.loads(f.read())
 
