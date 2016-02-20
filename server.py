@@ -18,10 +18,10 @@ def access_check():
     if not serial:
         abort(403)
 
-    with os.popen('/usr/sbin/emcssh sslpanel') as f:
+    with os.popen('/usr/local/sbin/emcssh emcweb') as f:
         ssh_result = f.read()
 
-    if serial not in ssh_result:
+    if serial.upper() not in ssh_result.upper():
         abort(403)
 
 @app.errorhandler(403)

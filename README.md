@@ -1,2 +1,1 @@
-# miningkit
-EmerCoin Web-interface
+EmerCoin Web Wallet
