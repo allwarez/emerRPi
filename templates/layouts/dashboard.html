@@ -18,8 +18,8 @@
             <ul class="nav" id="side-menu">
                 <li class="nav-header">
                     <div class="profile-element">
-                        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Mining Machine">
-                        <span class="text-muted text-xs block">vps Wallet</span>
+                        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Emercoin WebWallet">
+                        <span class="text-muted text-xs block">Web Wallet</span>
                     </div>
                     <div class="logo-element">
                         EMC
@@ -31,7 +31,7 @@
                         <span class="nav-label">Overview</span>
                     </a>
                 </li>
-				<li class="{% if request.endpoint == 'receive' %}active{% endif %}">
+                <li class="{% if request.endpoint == 'receive' %}active{% endif %}">
                     <a href="{{ url_for('receive') }}">
                         <i class="fa fa-list"></i>
                         <span class="nav-label">Receive Coins</span>
@@ -46,29 +46,17 @@
                 <li class="{% if request.endpoint == 'sign' %}active{% endif %}">
                     <a href="{{ url_for('sign') }}">
                         <i class="fa fa-pencil-square"></i>
-                        <span class="nav-label">Sign message</span>
+                        <span class="nav-label">Sign Message</span>
                     </a>
                 </li>
-				<li class="{% if request.endpoint == 'minfo' %}active{% endif %}">
+                <li class="{% if request.endpoint == 'minfo' %}active{% endif %}">
                     <a href="{{ url_for('minfo') }}">
                         <i class="fa fa-pie-chart"></i>
-                        <span class="nav-label">Mining Info</span>
+                        <span class="nav-label">Information</span>
                     </a>
                 </li>
                 <li>
-                    <a href="https://livecoin.net?from=Livecoin-Gg8qdmpU" target="_blank">
-                        <i class="fa fa-credit-card"></i>
-                        <span class="nav-label">Buy/Sell EMC</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="https://hashflare.io?utm_source=wallet" target="_blank">
-                        <i class="fa fa-cloud"></i>
-                        <span class="nav-label">Cloud mining</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="https://pool.cryptor.net" target="_blank">
+                    <a href="https://pool.emercoin.com" target="_blank">
                         <i class="fa fa-users"></i>
                         <span class="nav-label">EmerCoin Pool</span>
                     </a>
@@ -121,7 +109,7 @@
                 v1.0.3
             </div>
             <div>
-                <strong>Copyright</strong> HashCoins $ Cryptor &copy; 2013-2016
+                <strong>Copyright</strong> Emercoin &copy; 2016
             </div>
         </div>
     </div>
