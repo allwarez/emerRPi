@@ -3,7 +3,7 @@ import os
 import time
 import json
 import datetime
-import hashlib
+from hashlib import md5
 import requests
 from flask import Flask, render_template, jsonify, redirect, request, url_for, session, flash, abort
 
@@ -12,25 +12,84 @@ app = Flask(__name__)
 app.secret_key = 'gf6dfg87sfg7sf5gs4dfg5s7fgsd980n'
 app.debug = True
 
+
 def access_check():
+    if check_login() == 0:
+        abort(403)
+
+
+def check_login():
+    if 'auth' in session:
+        try:
+            with open('config/passwd', 'r') as f:
+                login_pass = f.read().strip()
+                if session['auth'] == login_pass:
+                    return 1
+        except:
+            pass
+
     serial = request.environ.get('SSL_CLIENT_M_SERIAL')
 
     if not serial:
-        abort(403)
+        return 0
 
     with os.popen('/usr/local/sbin/emcssh emcweb') as f:
-        ssh_result = f.read()
+        for line in f:
+            if len(line.strip()) == 0:
+                continue
+            if line.strip()[0] == '#':
+                continue
+            if serial.upper() == line.upper().strip():
+                return 2
 
-    if serial.upper() not in ssh_result.upper():
-        abort(403)
+    return 0
+
 
 @app.errorhandler(403)
 def access_forbidden(e):
     return render_template('403.html'), 403
 
+
+@app.errorhandler(401)
+def access_forbidden(e):
+    return render_template('401.html'), 401
+
+
 @app.route('/')
 def login():
-    return render_template('login.html')
+    return redirect(url_for('wallet')) if check_login() > 0 else render_template('login.html')
+
+
+# Method for login via login/password
+@app.route('/auth', methods=['POST'])
+def auth():
+    # if we have cert, we don't need check login/pass
+    if check_login() == 2:
+        return redirect(url_for('wallet'))
+
+    pw_hash = md5()
+    pw_hash.update(request.form['password'])
+    auth = '%s:%s' % (request.form['username'], pw_hash.hexdigest())
+
+    try:
+        with open('config/passwd', 'r') as f:
+            login_pass = f.read().strip()
+    except:
+        abort(401)
+
+    if auth != login_pass:
+        abort(401)
+
+    session['auth'] = auth
+    return redirect(url_for('wallet'))
+
+
+# Method for logout (login/password method)
+@app.route('/logout')
+def logout():
+    session.pop('auth', None)
+    return redirect(url_for('login'))
+
 
 @app.route('/wallet', methods=['GET', 'POST'])
 def wallet():
@@ -80,7 +139,7 @@ def wallet():
     for transaction in transactions:
         transaction['sexy_time'] = datetime.datetime.fromtimestamp(transaction['time']).strftime('%Y-%m-%d %H:%M:%S')
 
-    return render_template('wallet.html', balance=balance, transactions=transactions)
+    return render_template('wallet.html', balance=balance, transactions=transactions, login_btn=check_login())
 
 
 @app.route('/minfo', methods=['GET', 'POST'])
@@ -91,7 +150,7 @@ def minfo():
 
     url = 'http://' + rpc_config['user'] + ':' + rpc_config['password'] + '@' + rpc_config['host'] + ':' + rpc_config['port']
 
-	# display mining info
+    # display mining info
     payload = {
         'method': 'getinfo'
     }
@@ -100,7 +159,7 @@ def minfo():
 
     info = resp['result']
 
-	# display Difficulty info
+    # display Difficulty info
     payload = {
         'method': 'getdifficulty'
     }
@@ -109,7 +168,7 @@ def minfo():
 
     infodif = resp['result']
 
-    return render_template('minfo.html', info=info, infodif=infodif)
+    return render_template('minfo.html', info=info, infodif=infodif, login_btn=check_login())
 
 
 @app.route('/wallet_create', methods=['POST'])
@@ -147,7 +206,7 @@ def receive():
 
     inforeceive = resp['result']
 
-    return render_template('receive.html', inforeceive=inforeceive)
+    return render_template('receive.html', inforeceive=inforeceive, login_btn=check_login())
 
 @app.route('/sign', methods=['GET', 'POST'])
 def sign():
@@ -175,7 +234,7 @@ def sign():
 
         return redirect(url_for('sign'))
 
-    return render_template('sign.html')
+    return render_template('sign.html', login_btn=check_login())
 
 @app.route('/nvs')
 def nvs():
@@ -193,7 +252,7 @@ def nvs():
 
     name_list = resp['result']
 
-    return render_template('nvs.html', name_list=name_list)
+    return render_template('nvs.html', name_list=name_list, login_btn=check_login())
 
 @app.route('/nvs_new', methods=['POST'])
 def nvs_new():

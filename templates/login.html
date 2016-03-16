@@ -20,10 +20,53 @@
             <h3>EmerCoin</h3>
             <p>Web Wallet</p>
             <a href="{{ url_for('wallet') }}" class="btn btn-primary btn-lg">Login via SSL</a>
+            <p>or</p>
+            <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#login_dialog">Login via Login/Password</button>
         </div>
     </div>
+
+    <!-- Login modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="login_dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Login form</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="auth" method="post" id="auth_form">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" name="username" class="form-control" id="username" placeholder="Login">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="login_btn">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Mainly scripts -->
     <script src="{{ url_for('static', filename='js/jquery-2.1.1.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript">
+$(document).ready(function() {
+    $('#login_btn').click(function() {
+        $('form#auth_form').submit();
+    });
+    $("input").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            $('form#auth_form').submit();
+        }
+    });
+});
+    </script>
 </body>
 </html>
