@@ -1,5 +1,8 @@
 from __future__ import division
 import os
+import re
+import base64
+import hashlib
 import time
 import json
 import datetime
@@ -11,6 +14,19 @@ from flask import Flask, render_template, jsonify, redirect, request, url_for, s
 app = Flask(__name__)
 app.secret_key = 'gf6dfg87sfg7sf5gs4dfg5s7fgsd980n'
 app.debug = True
+
+
+def req_to_emc(data):
+    with open('config/rpc', 'r') as f:
+        rpc_config = json.loads(f.read())
+
+    url = 'https://%s:%s@%s:%s' % (rpc_config['user'],
+                                   rpc_config['password'],
+                                   rpc_config['host'],
+                                   rpc_config['port'])
+    
+
+    return requests.post(url, data=json.dumps(data), verify=rpc_config['ssl_verify']).json()
 
 
 def access_check():
@@ -25,24 +41,36 @@ def check_login():
                 login_pass = f.read().strip()
                 if session['auth'] == login_pass:
                     return 1
-        except:
+        except IOError:
             pass
 
     serial = request.environ.get('SSL_CLIENT_M_SERIAL')
+    serial = serial.rjust(16, '0').lower() if serial else ''.rjust(16, '0')
 
-    if not serial:
+    if not all([request.environ.get('SSL_CLIENT_CERT'),
+                request.environ.get('SSL_CLIENT_I_DN_UID') == 'EMC',
+                serial[0] != '0']):
         return 0
 
-    with os.popen('/usr/local/sbin/emcssh emcweb') as f:
-        for line in f:
-            if len(line.strip()) == 0:
-                continue
-            if line.strip()[0] == '#':
-                continue
-            if serial.upper() == line.upper().strip():
-                return 2
+    resp = req_to_emc({
+        'method': 'name_show',
+        'params': [
+            'ssl:%s' % serial
+        ],
+    })
 
-    return 0
+    if resp['error'] or resp['result']['expires_in'] <= 0:
+        return 0
+
+    value = resp['result']['value'].split('=')
+    if value[0] not in hashlib.algorithms:
+        return 0
+
+    cert = re.sub(r'\-+BEGIN CERTIFICATE\-+|-+END CERTIFICATE\-+|\n|\r', '', request.environ.get('SSL_CLIENT_CERT'))
+    if getattr(hashlib, value[0])(base64.b64decode(cert)).hexdigest() != value[1]:
+        return 0
+
+    return 2
 
 
 @app.errorhandler(403)
@@ -69,18 +97,18 @@ def auth():
 
     pw_hash = md5()
     pw_hash.update(request.form['password'])
-    auth = '%s:%s' % (request.form['username'], pw_hash.hexdigest())
+    auth_str = '%s:%s' % (request.form['username'], pw_hash.hexdigest())
 
     try:
         with open('config/passwd', 'r') as f:
             login_pass = f.read().strip()
-    except:
+    except IOError:
         abort(401)
 
-    if auth != login_pass:
+    if auth_str != login_pass:
         abort(401)
 
-    session['auth'] = auth
+    session['auth'] = auth_str
     return redirect(url_for('wallet'))
 
 
@@ -94,21 +122,15 @@ def logout():
 @app.route('/wallet', methods=['GET', 'POST'])
 def wallet():
     access_check()
-    with open('config/rpc', 'r') as f:
-        rpc_config = json.loads(f.read())
-
-    url = 'http://' + rpc_config['user'] + ':' + rpc_config['password'] + '@' + rpc_config['host'] + ':' + rpc_config['port']
 
     if request.method == 'POST':
-        payload = {
+        resp = req_to_emc({
             'method': 'sendtoaddress',
             'params': [
                 request.form['address'],
                 float(request.form['amount'])
             ]
-        }
-
-        resp = requests.post(url, data=json.dumps(payload)).json()
+        })
 
         if resp['error']:
             flash(resp['error']['message'], 'danger')
@@ -118,21 +140,17 @@ def wallet():
         return redirect(url_for('wallet'))
 
     # display wallet balance
-    payload = {
+    resp = req_to_emc({
         'method': 'getbalance'
-    }
+    })
 
-    resp = requests.post(url, data=json.dumps(payload))
-
-    balance = resp.json()['result']
+    balance = resp['result']
     balance = format(balance, '.8f')
    
     # display list of transactions
-    payload = {
+    resp = req_to_emc({
         'method': 'listtransactions'
-    }
-
-    resp = requests.post(url, data=json.dumps(payload)).json()
+    })
 
     transactions = resp['result']
 
@@ -145,26 +163,18 @@ def wallet():
 @app.route('/minfo', methods=['GET', 'POST'])
 def minfo():
     access_check()
-    with open('config/rpc', 'r') as f:
-        rpc_config = json.loads(f.read())
-
-    url = 'http://' + rpc_config['user'] + ':' + rpc_config['password'] + '@' + rpc_config['host'] + ':' + rpc_config['port']
 
     # display mining info
-    payload = {
+    resp = req_to_emc({
         'method': 'getinfo'
-    }
-
-    resp = requests.post(url, data=json.dumps(payload)).json()
+    })
 
     info = resp['result']
 
     # display Difficulty info
-    payload = {
+    resp = req_to_emc({
         'method': 'getdifficulty'
-    }
-
-    resp = requests.post(url, data=json.dumps(payload)).json()
+    })
 
     infodif = resp['result']
 
@@ -174,58 +184,42 @@ def minfo():
 @app.route('/wallet_create', methods=['POST'])
 def wallet_create():
     access_check()
-    with open('config/rpc', 'r') as f:
-        rpc_config = json.loads(f.read())
 
-    url = 'http://' + rpc_config['user'] + ':' + rpc_config['password'] + '@' + rpc_config['host'] + ':' + rpc_config['port']
-
-    payload = {
+    resp = req_to_emc({
         'method': 'getnewaddress'
-    }
-
-    resp = requests.post(url, data=json.dumps(payload)).json()
+    })
 
     flash('New address created: ' + resp['result'], 'success')
 
     return redirect(url_for('receive'))
 
+
 @app.route('/receive', methods=['GET', 'POST'])
 def receive():
     access_check()
-    with open('config/rpc', 'r') as f:
-        rpc_config = json.loads(f.read())
 
-    url = 'http://' + rpc_config['user'] + ':' + rpc_config['password'] + '@' + rpc_config['host'] + ':' + rpc_config['port']
-
-    payload = {
+    resp = req_to_emc({
         'method': 'getaddressesbyaccount',
         'params': ['']
-    }
-
-    resp = requests.post(url, data=json.dumps(payload)).json()
+    })
 
     inforeceive = resp['result']
 
     return render_template('receive.html', inforeceive=inforeceive, login_btn=check_login())
 
+
 @app.route('/sign', methods=['GET', 'POST'])
 def sign():
     access_check()
-    with open('config/rpc', 'r') as f:
-        rpc_config = json.loads(f.read())
-
-    url = 'http://' + rpc_config['user'] + ':' + rpc_config['password'] + '@' + rpc_config['host'] + ':' + rpc_config['port']
 
     if request.method == 'POST':
-        payload = {
+        resp = req_to_emc({
             'method': 'signmessage',
             'params': [
                 request.form['address'],
                 request.form['message']
             ]
-        }
-
-        resp = requests.post(url, data=json.dumps(payload)).json()
+        })
 
         if resp['error']:
             flash(resp['error']['message'], 'danger')
@@ -236,42 +230,32 @@ def sign():
 
     return render_template('sign.html', login_btn=check_login())
 
+
 @app.route('/nvs')
 def nvs():
     access_check()
-    with open('config/rpc', 'r') as f:
-        rpc_config = json.loads(f.read())
 
-    url = 'http://' + rpc_config['user'] + ':' + rpc_config['password'] + '@' + rpc_config['host'] + ':' + rpc_config['port']
-
-    payload = {
+    resp = req_to_emc({
         'method': 'name_list'
-    }
-
-    resp = requests.post(url, data=json.dumps(payload)).json()
+    })
 
     name_list = resp['result']
 
     return render_template('nvs.html', name_list=name_list, login_btn=check_login())
 
+
 @app.route('/nvs_new', methods=['POST'])
 def nvs_new():
     access_check()
-    with open('config/rpc', 'r') as f:
-        rpc_config = json.loads(f.read())
 
-    url = 'http://' + rpc_config['user'] + ':' + rpc_config['password'] + '@' + rpc_config['host'] + ':' + rpc_config['port']
-
-    payload = {
+    resp = req_to_emc({
         'method': 'name_new',
         'params': [
             request.form['name'],
             request.form['value'],
             int(request.form['days'])
         ]
-    }
-
-    resp = requests.post(url, data=json.dumps(payload)).json()
+    })
 
     if resp['error']:
         flash(resp['error']['message'], 'danger')
@@ -280,13 +264,10 @@ def nvs_new():
 
     return redirect(url_for('nvs'))
 
+
 @app.route('/nvs_update', methods=['POST'])
 def nvs_update():
     access_check()
-    with open('config/rpc', 'r') as f:
-        rpc_config = json.loads(f.read())
-
-    url = 'http://' + rpc_config['user'] + ':' + rpc_config['password'] + '@' + rpc_config['host'] + ':' + rpc_config['port']
 
     payload = {
         'method': 'name_update',
@@ -300,7 +281,7 @@ def nvs_update():
     if request.form['address']:
         payload['params'].append(request.form['address'])
 
-    resp = requests.post(url, data=json.dumps(payload)).json()
+    resp = req_to_emc(payload)
 
     if resp['error']:
         flash(resp['error']['message'], 'danger')
@@ -309,22 +290,17 @@ def nvs_update():
 
     return redirect(url_for('nvs'))
 
+
 @app.route('/nvs_delete', methods=['POST'])
 def nvs_delete():
     access_check()
-    with open('config/rpc', 'r') as f:
-        rpc_config = json.loads(f.read())
 
-    url = 'http://' + rpc_config['user'] + ':' + rpc_config['password'] + '@' + rpc_config['host'] + ':' + rpc_config['port']
-
-    payload = {
+    resp = req_to_emc({
         'method': 'name_delete',
         'params': [
             request.form['name']
         ]
-    }
-
-    resp = requests.post(url, data=json.dumps(payload)).json()
+    })
 
     if resp['error']:
         flash(resp['error']['message'], 'danger')
@@ -332,6 +308,7 @@ def nvs_delete():
         flash('Name deleted: ' + resp['result'], 'success')
 
     return redirect(url_for('nvs'))
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)

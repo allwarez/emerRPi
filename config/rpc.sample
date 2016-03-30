@@ -2,6 +2,7 @@
     "user": "emccoinrpc",
     "password": "maidaiwahlaeg9Goo7shaeco3nooh7gaeCiaXihie2ohzujook",
     "host": "127.0.0.1",
-    "port": "6662"
+    "port": "6662",
+    "ssl_verify": false
 }
 
