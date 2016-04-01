@@ -44,9 +44,11 @@ def check_login():
         except IOError:
             pass
 
+    # Get SSL Serial
     serial = request.environ.get('SSL_CLIENT_M_SERIAL')
     serial = serial.rjust(16, '0').lower() if serial else ''.rjust(16, '0')
 
+    # Ckeck on the authenticity of the SSL key
     if not all([request.environ.get('SSL_CLIENT_CERT'),
                 request.environ.get('SSL_CLIENT_I_DN_UID') == 'EMC',
                 serial[0] != '0']):
@@ -70,7 +72,17 @@ def check_login():
     if getattr(hashlib, value[0])(base64.b64decode(cert)).hexdigest() != value[1]:
         return 0
 
-    return 2
+    # Check the SSL key on access permitions
+    with os.popen('/usr/local/sbin/emcssh emcweb') as f:
+        for line in f:
+            if len(line.strip()) == 0:
+                continue
+            if line.strip()[0] == '#':
+                continue
+            if serial.upper() == line.upper().strip():
+                return 2
+
+    return 0
 
 
 @app.errorhandler(403)
