@@ -27,6 +27,7 @@ EOF
 chmod 600 /var/lib/emcweb/config/rpc
 chown -R emc.emc /var/lib/emcweb
 
+touch /etc/emercoin/emcssh.keys.d/emcweb
 ln -s /var/lib/emcweb/config /etc/emercoin/emcweb
 
 exit 0
