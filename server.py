@@ -73,7 +73,7 @@ def check_login():
         return 0
 
     # Check the SSL key on access permitions
-    with os.popen('/usr/local/sbin/emcssh emcweb') as f:
+    with os.popen('/usr/sbin/emcssh emcweb') as f:
         for line in f:
             if len(line.strip()) == 0:
                 continue
