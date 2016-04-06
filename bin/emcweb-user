@@ -1,0 +1,8 @@
+#!/bin/bash
+# Usage: emcweb-user [ login [ password ]]
+
+[ "$1" ] && login="$1" || { echo -n "Set Login: "; read login; }
+[ "$2" ] && passw="$2" || { echo -n "Set Password: "; read passw; }
+
+md5passw="`echo -n "$passw" | md5sum | cut -f1 -d ' '`"
+echo "$login:$md5passw" > /var/lib/emcweb/config/passwd
