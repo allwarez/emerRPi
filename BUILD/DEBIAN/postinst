@@ -13,7 +13,7 @@ pip install peewee
 a2enmod ssl
 a2enmod rewrite
 
-sed -i -e "s/gf6dfg87sfg7sf5gs4dfg5s7fgsd980n/`pwgen 30 1`/" /var/lib/emcweb/server.py
+sed -i -e "s/\(app.secret_key\)\(.*\)/app.secret_key = '$(pwgen 30 1)'/" /var/lib/emcweb/server.py
 service apache2 restart
 
 cat<<EOF >/var/lib/emcweb/config/rpc
