@@ -31,5 +31,6 @@ chown -R emc.emc /var/lib/emcweb
 
 touch /etc/emercoin/emcssh.keys.d/emcweb
 ln -s /var/lib/emcweb/config /etc/emercoin/emcweb
+rm -f /etc/apache2/sites-enabled/000-default.conf
 
 exit 0
