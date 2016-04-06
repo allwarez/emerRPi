@@ -1,15 +1,17 @@
 #!/bin/bash
 
+[ -f /var/lib/emcweb/config/rpc ] && exit 0
+[ ! -f /var/lib/emc/.emercoin/emercoin.conf ] && exit 1
+[ ! -f /etc/ssl/emc/emcweb.key ] || [ ! -f /etc/ssl/emc/emcweb.crt ] && {
+  mkdir -p /etc/ssl/emc
+  openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/ssl/emc/emcweb.key -out /etc/ssl/emc/emcweb.crt -days 3560 -subj /C=US/ST=Oregon/L=Portland/O=IT/CN=emercoin.emc
+}
+
 pip install --upgrade pip
 pip install Flask
 pip install peewee
 a2enmod ssl
 a2enmod rewrite
-
-mkdir -p /etc/ssl/emc
-[ ! -f /etc/ssl/emc/emcweb.key ] || [ ! -f /etc/ssl/emc/emcweb.crt ] && openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/ssl/emc/emcweb.key -out /etc/ssl/emc/emcweb.crt -days 3560 -subj /C=US/ST=Oregon/L=Portland/O=IT/CN=emercoin.emc
-[ ! -f /var/lib/emc/.emercoin/emercoin.conf ] && exit 1
-[ ! -l 
 
 sed -i -e "s/gf6dfg87sfg7sf5gs4dfg5s7fgsd980n/`pwgen 30 1`/" /var/lib/emcweb/server.py
 service apache2 restart
