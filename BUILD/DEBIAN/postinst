@@ -14,6 +14,9 @@ a2enmod ssl
 a2enmod rewrite
 
 sed -i -e "s/\(app.secret_key\)\(.*\)/app.secret_key = '$(pwgen 30 1)'/" /var/lib/emcweb/server.py
+touch /etc/emercoin/emcssh.keys.d/emcweb
+a2ensite emcweb
+rm -f /etc/apache2/sites-enabled/000-default.conf
 service apache2 restart
 
 cat<<EOF >/var/lib/emcweb/config/rpc
@@ -28,9 +31,5 @@ EOF
 
 chmod 600 /var/lib/emcweb/config/rpc
 chown -R emc.emc /var/lib/emcweb
-
-touch /etc/emercoin/emcssh.keys.d/emcweb
-ln -s /var/lib/emcweb/config /etc/emercoin/emcweb
-rm -f /etc/apache2/sites-enabled/000-default.conf
 
 exit 0
