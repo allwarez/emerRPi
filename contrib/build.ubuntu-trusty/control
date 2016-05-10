@@ -4,5 +4,5 @@ Maintainer: Aspanta Limited <info@aspanta.com>
 Architecture: all
 Section: net
 Priority: optional
-Description: Emercoin Web Wallet
-Depends: emercoin, emcssh, pwgen, python-dev, python-pip, apache2, libapache2-mod-wsgi-py3, openssl
+Description: Emercoin Web Wallet for Ubuntu 14.04 LTS
+Depends: emercoin, emcssh, pwgen, openssl, apache2, python-flask, libapache2-mod-wsgi

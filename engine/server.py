@@ -1,11 +1,14 @@
-from __future__ import division
+# -*- coding: utf-8 -*-
+from __future__ import division, unicode_literals
+
 import os
 import re
-import base64
 import hashlib
 import time
 import json
 import datetime
+import sys
+import base64
 from hashlib import md5
 import requests
 from flask import Flask, render_template, jsonify, redirect, request, url_for, session, flash, abort
@@ -24,7 +27,6 @@ def req_to_emc(data):
                                    rpc_config['password'],
                                    rpc_config['host'],
                                    rpc_config['port'])
-    
 
     return requests.post(url, data=json.dumps(data), verify=rpc_config['ssl_verify']).json()
 
@@ -45,8 +47,9 @@ def check_login():
             pass
 
     # Get SSL Serial
+    char = '0'.encode('utf-8') if sys.version_info < (3, 0) else '0'
     serial = request.environ.get('SSL_CLIENT_M_SERIAL')
-    serial = serial.rjust(16, '0').lower() if serial else ''.rjust(16, '0')
+    serial = serial.rjust(16, char).lower() if serial else ''.rjust(16, char)
 
     # Ckeck on the authenticity of the SSL key
     if not all([request.environ.get('SSL_CLIENT_CERT'),
@@ -65,12 +68,14 @@ def check_login():
         return 0
 
     value = resp['result']['value'].split('=')
-    if value[0] not in hashlib.algorithms:
+    algorithms = hashlib.algorithms if sys.version_info < (3, 0) else hashlib.algorithms_available
+    if value[0] not in algorithms:
         return 0
 
     cert = re.sub(r'\-+BEGIN CERTIFICATE\-+|-+END CERTIFICATE\-+|\n|\r', '', request.environ.get('SSL_CLIENT_CERT'))
     if getattr(hashlib, value[0])(base64.b64decode(cert)).hexdigest() != value[1]:
         return 0
+
 
     # Check the SSL key on access permitions
     with os.popen('/usr/sbin/emcssh emcweb') as f:
@@ -108,7 +113,7 @@ def auth():
         return redirect(url_for('wallet'))
 
     pw_hash = md5()
-    pw_hash.update(request.form['password'])
+    pw_hash.update(request.form['password'].encode('utf-8'))
     auth_str = '%s:%s' % (request.form['username'], pw_hash.hexdigest())
 
     try:
