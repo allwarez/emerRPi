@@ -2,7 +2,12 @@
 # Usage: emcweb-user [ login [ password ]]
 
 [ "$1" ] && login="$1" || { echo -n "Set Login: "; read login; }
-[ "$2" ] && passw="$2" || { echo -n "Set Password: "; read passw; }
+[ "$2" ] && { passw="$2"; passw2="$2"; } || { 
+  echo -n "Set Password: "; read -s passw; echo;
+  [ "$login" ] || { echo "Specify the Login please"; exit 1; }
+  [ "$passw" ] && { echo -n "Check Password: "; read -s passw2; echo; } || { echo "Specify the Password please"; exit 1; }
+  [ "$passw" != "$passw2" ] && { echo "Passwords don't match"; exit 1; }
+}
 
 md5passw="`echo -n "$passw" | md5sum | cut -f1 -d ' '`"
-echo "$login:$md5passw" > /var/lib/emcweb/config/passwd
+echo "$login:$md5passw" > /var/lib/emcweb/config/passwd && echo "Done!"
